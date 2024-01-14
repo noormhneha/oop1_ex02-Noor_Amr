@@ -11,7 +11,7 @@ Level::Level(std::ifstream& level, Board& board) : m_level(level), m_board(board
         std::cout << line << std::endl;
         m_board.getMap().push_back(line);
     }
-    m_board.setMapColSize(line.length());
+    m_board.setMapColSize(m_board.getMap().at(0).length());
     m_board.setMapRowSize(m_board.getMap().size());
 }
 

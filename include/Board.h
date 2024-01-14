@@ -21,7 +21,7 @@ const char ROAD = ' ';
 class Board
 {
 public:
-	Board(int level, std::string input);
+	Board(int level, std::ifstream input);
 
 	
 	// get and set function for the members

@@ -1,10 +1,10 @@
 #include "Board.h"
 #include <cmath>
 
-Board::Board(int level, std::string input) : m_mapColSize(0), m_mapRowSize(0), m_cheese(*this)
+Board::Board(int level, std::ifstream input) : m_mapColSize(0), m_mapRowSize(0), m_cheese(*this)
 {
-	std::ifstream file(input);
-	Level levelObj(file, *this);
+	//std::ifstream file(input);
+	Level levelObj(input, *this);
 	CreateFiguresOfCat(level);
 	SetStartPos(level);
 }
