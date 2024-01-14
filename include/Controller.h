@@ -8,5 +8,5 @@ public:
 	Controller();
 
 private:
-
+	std::vector<std::string> m_levels;
 };

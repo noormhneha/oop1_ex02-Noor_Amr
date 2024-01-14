@@ -7,6 +7,7 @@
 #include "Cat.h"
 #include "Mouse.h"
 #include "Level.h"
+#include "Cheese.h"
 
 const char MOUSE = '%';
 const char CAT = '^';
@@ -20,8 +21,9 @@ const char ROAD = ' ';
 class Board
 {
 public:
-	Board(int level, std::ifstream& input);
+	Board(int level, std::string input);
 
+	
 	// get and set function for the members
 	std::vector<std::string>& getMap();
 	std::string& getMapIndex(const size_t& Index);
@@ -49,11 +51,11 @@ private:
 	size_t m_mapRowSize;
 	size_t m_mapColSize;
 
-	
+	Cheese m_cheese;
+
 	void CreateFiguresOfCat(int level);
 	int Distance(Location a, const int& row, const int& col);
 	bool ValidPos(const char& pos);
 	Location FindNearestPoint(const int& row, const int& col);
-
 };
 

@@ -1,9 +1,10 @@
 #include "Board.h"
 #include <cmath>
 
-Board::Board(int level, std::ifstream& input) : m_mapColSize(0), m_mapRowSize(0)
+Board::Board(int level, std::string input) : m_mapColSize(0), m_mapRowSize(0), m_cheese(*this)
 {
-	Level levelObj(input, *this);
+	std::ifstream file(input);
+	Level levelObj(file, *this);
 	CreateFiguresOfCat(level);
 	SetStartPos(level);
 }
@@ -78,6 +79,7 @@ void Board::SetStartPos(int level)
 	if (m_map[mousePlace.col][mousePlace.row] == CHEESE)
 	{
 		//m_cheese--;
+		m_cheese.decreaseCounter();
 		SetCell(mousePlace, ROAD);
 	}
 

@@ -1,4 +1,4 @@
-
+#pragma once
 
 class Board;
 
@@ -8,8 +8,8 @@ public:
 
 	void decreaseCounter();
 
-	int getCheeseCounter();
-
+	int getCheeseCounter() const;
+	bool remainingCheese() const;
 private:
 	int m_cheeseCounter;
 	Board& m_board;

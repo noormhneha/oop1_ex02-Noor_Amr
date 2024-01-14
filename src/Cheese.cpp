@@ -17,7 +17,11 @@ void Cheese::decreaseCounter() {
     m_cheeseCounter--;
 }
 
-int Cheese::getCheeseCounter()
+int Cheese::getCheeseCounter() const
 {
 	return  m_cheeseCounter;
+}
+
+bool Cheese::remainingCheese() const {
+    return m_cheeseCounter == 0;
 }
