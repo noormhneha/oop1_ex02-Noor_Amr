@@ -33,10 +33,14 @@ public:
 	Mouse getMouse() const;
 	Mouse& setMouse();
 
+	Location getMouseLocation() const;
+
 	size_t getMapRowSize()const;
 	void setMapRowSize(const size_t& size);
 	size_t getMapColSize()const;
 	void setMapColSize(const size_t& size);
+
+	int cheeseCounter() const;
 
 	//Functions useful
 	Location SetStartPos();
@@ -57,7 +61,7 @@ private:
 	size_t m_mapRowSize;
 	size_t m_mapColSize;
 
-	Cheese m_cheese;
+	int m_cheese;
 
 	int m_level;
 	void CreateFiguresOfCat(int level);

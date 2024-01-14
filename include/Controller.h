@@ -14,13 +14,15 @@ public:
 private:
 	void gameLevel(std::ifstream& level, int counter);
 	void whichPressed(const auto c, Location& location);
-	void handleSpecialKey(Board board);
+	void handleSpecialKey(Board& board);
 	bool handleRegularKey();
-	void nextStep(Board board, Location location);
+	void nextStep(Board& board, Location location);
 
-	bool checkScoreStep(Board board, Location location);
+	bool checkScoreStep(Board& board, Location& location);
 	bool catCatch(Board board);
 	bool doorOpen();
+
+	void printScore(Board board) const;
 
 	std::vector<std::string> m_levels;
 	Score m_levelScore;

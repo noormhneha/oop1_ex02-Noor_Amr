@@ -1,11 +1,13 @@
 #include "Board.h"
 #include <cmath>
 
-Board::Board(int level, std::ifstream& input) : m_mapColSize(0), m_mapRowSize(0), m_cheese(*this), m_level(level), m_mouseLocation{1,1}
+Board::Board(int level, std::ifstream& input) : m_mapColSize(0), m_mapRowSize(0), m_cheese(0), m_level(level), m_mouseLocation{1,1}
 {
-	Level levelObj(input, *this);
+	Level levelObj(input, *this); Cheese cheese(*this);
+	m_cheese = cheese.getCheeseCounter();
 	CreateFiguresOfCat(level);
 	m_mouseLocation = SetStartPos();
+	setMouse().setPosition(m_mouseLocation);
 }
 
 std::vector<std::string>& Board::getMap()
@@ -40,6 +42,11 @@ Mouse& Board::setMouse()
 	return m_mouse;
 }
 
+Location Board::getMouseLocation() const
+{
+	return m_mouseLocation;
+}
+
 size_t Board::getMapRowSize() const
 {
 	return m_mapRowSize;
@@ -58,6 +65,11 @@ size_t Board::getMapColSize() const
 void Board::setMapColSize(const size_t& size)
 {
 	m_mapColSize = size;
+}
+
+int Board::cheeseCounter() const
+{
+	return m_cheese;
 }
 
 //=============================================================================
