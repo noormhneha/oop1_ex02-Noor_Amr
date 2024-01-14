@@ -1,12 +1,11 @@
 #include "Board.h"
 #include <cmath>
 
-Board::Board(int level, std::ifstream input) : m_mapColSize(0), m_mapRowSize(0), m_cheese(*this)
+Board::Board(int level, std::ifstream& input) : m_mapColSize(0), m_mapRowSize(0), m_cheese(*this), m_level(level), m_mouseLocation{1,1}
 {
-	//std::ifstream file(input);
 	Level levelObj(input, *this);
 	CreateFiguresOfCat(level);
-	SetStartPos(level);
+	m_mouseLocation = SetStartPos();
 }
 
 std::vector<std::string>& Board::getMap()
@@ -63,26 +62,20 @@ void Board::setMapColSize(const size_t& size)
 
 //=============================================================================
 
-void Board::SetStartPos(int level)
+Location Board::SetStartPos()
 {
-	Location loc[4] = { { 0, 0 }, { 0, int(m_mapColSize - 1) },
-					  { int(m_mapRowSize - 1), int(m_mapColSize - 1) },
-					  { int(m_mapRowSize - 1), 0 } };
-
-	for (int i = 0; i < level; i++)
-		m_cat[i].setPosition(FindNearestPoint(loc[i % 4].row, loc[i % 4].col));
-
-	Location mousePlace = FindNearestPoint(static_cast<int>(std::ceil(int(m_mapRowSize) / 2)),
-		static_cast<int>(std::ceil(int(m_mapColSize) / 2)));
-
-	m_mouse.setPosition(mousePlace);
-	if (m_map[mousePlace.col][mousePlace.row] == CHEESE)
-	{
-		//m_cheese--;
-		m_cheese.decreaseCounter();
-		SetCell(mousePlace, ROAD);
+	Location location{ 1,1 };
+	int i = 0;
+	for (const auto& line : m_map) {
+		for (int j = 0; j < line.length(); j++) {
+			if (line[j] == MOUSE) {
+				location = { i,j };
+				return location;
+			}
+		}
+		i++;
 	}
-
+	return location;
 }
 
 // set a cell to a received char in a received cell
@@ -91,44 +84,30 @@ void Board::SetCell(Location cell, char c)
 	m_map[cell.col][cell.row] = c;
 }
 
+
+void Board::printStep(const char c) {
+	std::cout << c << std::endl;
+}
+
+bool Board::isEaten(int level)
+{
+	for (int i = 0; i < level; i++)
+	{
+		if (m_mouse.getPosition().row == m_cat[i].getPosition().row &&
+			m_mouse.getPosition().col == m_cat[i].getPosition().col)
+			return true;
+	}
+	return false;
+}
+
+
+
 void Board::CreateFiguresOfCat(int level)
 {
 	for (int i = 0; i < level; i++)
 		m_cat.push_back(Cat());
 }
 
-
-// return the distance between 2 cells in the board
-int Board::Distance(Location a, const int& row, const int& col)
-{
-	return (abs(a.row - row) + abs(a.col - col));
-}
-
-// return if the cell is not a wall (#)
-bool Board::ValidPos(const char& pos)
-{
-	return pos != WALL;
-}
-
-Location Board::FindNearestPoint(const int& row, const int& col)
-{
-	int currentDis = 0;
-	int minDis = (int(m_mapColSize + m_mapRowSize)) * 3;
-	Location currentPos;
-	Location newPos = { row, col };
-	for (int i = 0; i < m_mapColSize; i++)
-		for (int j = 0; j < m_mapRowSize; j++)
-		{
-			currentPos = { j,i };
-			currentDis = Distance(currentPos, row, col);
-			if (ValidPos(m_map[i][j]) && currentDis < minDis)
-			{
-				minDis = currentDis;
-				newPos = currentPos;
-			}
-		}
-	return newPos;
-}
 
 
 

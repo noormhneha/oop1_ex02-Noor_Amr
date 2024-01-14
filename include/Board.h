@@ -21,7 +21,7 @@ const char ROAD = ' ';
 class Board
 {
 public:
-	Board(int level, std::ifstream input);
+	Board(int level, std::ifstream& input);
 
 	
 	// get and set function for the members
@@ -39,8 +39,12 @@ public:
 	void setMapColSize(const size_t& size);
 
 	//Functions useful
-	void SetStartPos(int level);
+	Location SetStartPos();
 	void SetCell(Location cell, char c);
+
+	bool isEaten(int level);
+	/*void printBoard(int level);*/
+	void printStep(const char c);
 
 
 private:
@@ -48,14 +52,14 @@ private:
 	Mouse m_mouse;
 	std::vector<Cat> m_cat;
 	
+	Location m_mouseLocation;
+
 	size_t m_mapRowSize;
 	size_t m_mapColSize;
 
 	Cheese m_cheese;
 
+	int m_level;
 	void CreateFiguresOfCat(int level);
-	int Distance(Location a, const int& row, const int& col);
-	bool ValidPos(const char& pos);
-	Location FindNearestPoint(const int& row, const int& col);
 };
 
