@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include <windows>
+
 #include "Cat.h"
 #include "Mouse.h"
 #include "Level.h"
@@ -17,6 +19,15 @@ const char KEY = 'F';
 const char CHEESE = '*';
 const char GIFT = '$';
 const char ROAD = ' ';
+
+// ANSI escape codes for text color
+#define RESET   "\033[0m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define BLUE    "\033[34m"
+#define BROWN   "\033[0;33m"
+#define KEY     "\033[1;36m"
 
 class Board
 {
@@ -48,7 +59,7 @@ public:
 
 	bool isEaten(int level);
 	/*void printBoard(int level);*/
-	void printStep(const char c);
+	void printStep(const char c, const std::string& color);
 
 
 private:

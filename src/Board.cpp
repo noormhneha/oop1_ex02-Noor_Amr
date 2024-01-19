@@ -97,8 +97,8 @@ void Board::SetCell(Location cell, char c)
 }
 
 
-void Board::printStep(const char c) {
-	std::cout << c << std::endl;
+void Board::printStep(const char c, const std::string& color) {
+	std::cout << color << c << RESET << std::endl;
 }
 
 bool Board::isEaten(int level)

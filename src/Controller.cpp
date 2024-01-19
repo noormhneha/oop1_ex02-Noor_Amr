@@ -67,9 +67,9 @@ void Controller::handleSpecialKey(Board& board)
 
 void Controller::nextStep(Board& board, Location nextLocation) {
 	if (checkScoreStep(board, nextLocation)) {
-		board.printStep(ROAD);
+		board.printStep(ROAD, RESET);
 		Screen::setLocation(nextLocation);
-		board.printStep(MOUSE);
+		board.printStep(MOUSE, BROWN);
 		board.setMouse().setPosition(nextLocation);
 	}
 	//else exit(EXIT_FAILURE);

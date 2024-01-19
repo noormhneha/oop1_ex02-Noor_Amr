@@ -15,4 +15,5 @@ public:
 private:
 	std::ifstream& m_level;
 	Board& m_board;
+    printColoredStep(const char c);
 };
