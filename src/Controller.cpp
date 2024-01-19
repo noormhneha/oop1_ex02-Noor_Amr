@@ -1,12 +1,12 @@
 #include "Controller.h"
 
-Controller::Controller() : playList("Levels.txt"),
-m_levels{ "Level001.txt" }  , m_levelScore{ 3, 0, 0, 0 }
+Controller::Controller() : playList("Levels.txt"), m_levels{ "Level001.txt" } 
 {
 	m_levels = setData();
 	int counter = 0;
 	for (auto i = m_levels.begin(); i != m_levels.end(); i++) {
 		std::ifstream level(*i); // level map
+		m_levelScore = { 3, 0, 0, 0 };
 		gameLevel(level, counter);
 		system("cls");
 		counter++;

@@ -12,7 +12,6 @@ Level::Level(std::ifstream& level, Board& board) : m_level(level), m_board(board
             printColoredStep(line[i], board);
         }
         std::cout << std::endl;
-//        std::cout << line << std::endl;
         m_board.getMap().push_back(line);
     }
     m_board.setMapColSize(m_board.getMap().at(0).length());
