@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include <windows>
+#include <windows.h>
 
 #include "Cat.h"
 #include "Mouse.h"
@@ -21,13 +21,13 @@ const char GIFT = '$';
 const char ROAD = ' ';
 
 // ANSI escape codes for text color
-#define RESET   "\033[0m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define BLUE    "\033[34m"
-#define BROWN   "\033[0;33m"
-#define KEY     "\033[1;36m"
+#define RESET        "\033[0m"
+#define MOUSECOLOR   "\033[1;35m" // Magenta
+#define CATCOLOR     "\033[1;34m" // Bright Blue
+#define CHEESECOLOR  "\033[1;33m" // Bright Yellow
+#define DOORCOLOR    "\033[1;32m" // Bright Green
+#define KEYCOLOR     "\033[1;36m" // Bright Cyan
+#define GIFTCOLOR    "\033[1;31m" // Bright Red
 
 class Board
 {

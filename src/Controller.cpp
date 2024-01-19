@@ -1,16 +1,36 @@
 #include "Controller.h"
 
-Controller::Controller() :
-m_levels{ "Level001.txt","Level002.txt" ,"Level003.txt" ,"Level004.txt" ,"Level005.txt" ,"Level006.txt" } 
+Controller::Controller() : playList("Levels.txt"),
+m_levels{ "Level001.txt" }  , m_levelScore{ 3, 0, 0, 0 }
 {
+	m_levels = setData();
 	int counter = 0;
 	for (auto i = m_levels.begin(); i != m_levels.end(); i++) {
 		std::ifstream level(*i); // level map
-		m_levelScore = { 3, 0 , 0 ,0 }; 
 		gameLevel(level, counter);
 		system("cls");
 		counter++;
 	}
+}
+
+std::vector<std::string> Controller::setData()
+{
+	std::ifstream levellist(playList);
+	if (!levellist.is_open()) {
+		std::cerr << "Error opening file: ";
+		exit(EXIT_FAILURE);
+	}
+
+	std::vector<std::string> levels;
+
+	std::string line;
+	while (std::getline(levellist, line)) {
+		levels.push_back(line);
+	}
+
+	levellist.close();
+
+	return levels;
 }
 
 void Controller::gameLevel(std::ifstream& level, int counter)
@@ -23,9 +43,12 @@ void Controller::gameLevel(std::ifstream& level, int counter)
  		const auto c = _getch();
 		switch (c)
 		{
-		case 0: case Keys::SPECIAL_KEY:
+		case 0: case Keys::SPECIAL_KEY: case ' ':
 			handleSpecialKey(board);
 			break;
+		//case Keys::ESCAPE: 
+		//	system("cls");
+		//	return;
 		default:
 			exit = handleRegularKey();
 			break;
@@ -48,9 +71,7 @@ void Controller::whichPressed(const auto c, Location& location) {
 	case SpecialKeys::RIGHT:
 		location.col++;
 		break;
-	case Keys::ESCAPE:
-		break;
-	default:
+	case ' ': default:
 		break;
 	}
 }
@@ -69,7 +90,7 @@ void Controller::nextStep(Board& board, Location nextLocation) {
 	if (checkScoreStep(board, nextLocation)) {
 		board.printStep(ROAD, RESET);
 		Screen::setLocation(nextLocation);
-		board.printStep(MOUSE, BROWN);
+		board.printStep(MOUSE, MOUSECOLOR);
 		board.setMouse().setPosition(nextLocation);
 	}
 	//else exit(EXIT_FAILURE);
@@ -100,16 +121,18 @@ bool Controller::checkScoreStep(Board& board, Location& location)
 	case KEY:
 		// get
 		m_levelScore._counter_key++;
+		board.getMap()[location.row].at(location.col) = ROAD;
 		break;
 	case CHEESE:
 		// eat
-		board.getMap()[location.row].at(location.col) = ' ';
+		board.getMap()[location.row].at(location.col) = ROAD;
 		m_levelScore._cheese_counter--;
 		m_levelScore._score += 10;
 		break;
 	case GIFT:
 		// delete cat
 		m_levelScore._score += 5;
+		board.getMap()[location.row].at(location.col) = ROAD;
 		break;
 	case WALL:
 		// stop
@@ -127,6 +150,7 @@ bool Controller::catCatch(Board board)
 	}
 	else {
 		//losegame
+		system("cls");
 		return false; // exit;
 	}
 }
@@ -148,6 +172,7 @@ void Controller::printScore(Board board) const
 	std::cout << "Lives -> " << m_levelScore._lives_remaining << std::endl;
 	std::cout << "Keys -> " << m_levelScore._counter_key << std::endl;
 }
+
 
 
 

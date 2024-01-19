@@ -24,6 +24,9 @@ private:
 
 	void printScore(Board board) const;
 
+	std::vector<std::string> setData(); // taking data from levels file 
+
+	std::string playList;
 	std::vector<std::string> m_levels;
 	Score m_levelScore;
 };

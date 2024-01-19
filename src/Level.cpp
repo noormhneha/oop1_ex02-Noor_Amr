@@ -9,8 +9,9 @@ Level::Level(std::ifstream& level, Board& board) : m_level(level), m_board(board
     std::string line;
     while (std::getline(level, line)) {
         for (int i = 0; i < line.length(); i++) {
-            printColoredStep(line[i]);
+            printColoredStep(line[i], board);
         }
+        std::cout << std::endl;
 //        std::cout << line << std::endl;
         m_board.getMap().push_back(line);
     }
@@ -18,28 +19,28 @@ Level::Level(std::ifstream& level, Board& board) : m_level(level), m_board(board
     m_board.setMapRowSize(m_board.getMap().size());
 }
 
-void Level::printColoredStep(const char c){
+void Level::printColoredStep(const char c, Board& board){
     switch (c){
         case MOUSE:
-            printStep(c, BROWN);
-            break; // brown
+            board.printStep(c, MOUSECOLOR);
+            break; 
         case DOOR:
-            printStep(c, GREEN);
-            break; // green
+            board.printStep(c, DOORCOLOR);
+            break; 
         case CHEESE:
-            printStep(c, yellow);
-            break; // yellow
+            board.printStep(c, CHEESECOLOR);
+            break; 
         case GIFT:
-            printStep(c, blue);
-            break; // blue
+            board.printStep(c, GIFTCOLOR);
+            break; 
         case KEY:
-            printStep(c, KEY);
-            break; // key
+            board.printStep(c, KEYCOLOR);
+            break; 
         case CAT:
-            printStep(c, RED);
-            break; // red
+            board.printStep(c, CATCOLOR);
+            break; 
         default:
-            printStep(c, RESET);
+            board.printStep(c, RESET);
             break;
     }
 }
