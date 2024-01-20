@@ -34,11 +34,11 @@ class Board
 public:
 	Board(int level, std::ifstream& input);
 
-	
+
 	// get and set function for the members
 	std::vector<std::string>& getMap();
 	std::string& getMapIndex(const size_t& Index);
-	
+
 	std::vector<Cat> getCat()const;
 	std::vector<Cat>& setCat();
 	Mouse getMouse() const;
@@ -57,6 +57,8 @@ public:
 	Location SetStartPos();
 	void SetCell(Location cell, char c);
 
+	void catsPosition();
+
 	bool isEaten(int level);
 	/*void printBoard(int level);*/
 	void printStep(const char c, const std::string& color);
@@ -66,8 +68,9 @@ private:
 	std::vector<std::string> m_map;
 	Mouse m_mouse;
 	std::vector<Cat> m_cat;
-	
+
 	Location m_mouseLocation;
+	std::vector<Location> m_catLocation;
 
 	size_t m_mapRowSize;
 	size_t m_mapColSize;
@@ -77,4 +80,3 @@ private:
 	int m_level;
 	void CreateFiguresOfCat(int level);
 };
-

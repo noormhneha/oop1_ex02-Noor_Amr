@@ -103,6 +103,7 @@ bool Controller::handleRegularKey()
 
 bool Controller::checkScoreStep(Board& board, Location& location)
 {
+	static size_t counter = 0;
 	char c = board.getMap()[location.row].at(location.col);
 	switch (c)
 	{
@@ -117,7 +118,9 @@ bool Controller::checkScoreStep(Board& board, Location& location)
 		}
 		break;
 	case DOOR:
-		return doorOpen(); // check key 
+		if (doorOpen())
+			board.getMap()[location.row].at(location.col) = ROAD;
+		break; // check key 
 	case KEY:
 		// get
 		m_levelScore._counter_key++;
@@ -131,6 +134,8 @@ bool Controller::checkScoreStep(Board& board, Location& location)
 		break;
 	case GIFT:
 		// delete cat
+		removeCat(board, counter);
+		counter++;
 		m_levelScore._score += 5;
 		board.getMap()[location.row].at(location.col) = ROAD;
 		break;
@@ -162,6 +167,19 @@ bool Controller::doorOpen() {
 		return true;
 	}
 	return false;
+}
+
+void Controller::removeCat(Board& board, size_t counter) {
+	std::vector cat = board.getCat();
+	Location location = board.getMouseLocation();
+	if (counter < cat.size()) {
+		board.printStep(ROAD, RESET);	
+		Location temp = cat[counter].getPosition();
+		Screen::setLocation(temp);
+		board.printStep(ROAD, RESET);
+		board.getMap()[temp.row].at(temp.col) = ROAD;
+	}
+	Screen::setLocation(location);
 }
 
 void Controller::printScore(Board board) const

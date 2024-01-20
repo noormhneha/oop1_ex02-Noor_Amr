@@ -24,9 +24,13 @@ private:
 
 	void printScore(Board board) const;
 
+
+	void removeCat(Board& board, size_t counter);
+
 	std::vector<std::string> setData(); // taking data from levels file 
 
 	std::string playList;
 	std::vector<std::string> m_levels;
+
 	Score m_levelScore;
 };

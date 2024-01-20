@@ -8,6 +8,7 @@ Board::Board(int level, std::ifstream& input) : m_mapColSize(0), m_mapRowSize(0)
 	CreateFiguresOfCat(level);
 	m_mouseLocation = SetStartPos();
 	setMouse().setPosition(m_mouseLocation);
+	catsPosition();
 }
 
 std::vector<std::string>& Board::getMap()
@@ -120,7 +121,20 @@ void Board::CreateFiguresOfCat(int level)
 		m_cat.push_back(Cat());
 }
 
+void Board::catsPosition()
+{
+	for (int i = 0; i < m_map.size(); ++i) {
+		for (int j = 0; j < m_map[i].length(); ++j) {
+			if (m_map[i][j] == CAT) {
+				Location location{ i, j };
+				m_catLocation.push_back(location);
+			}
+		}
+	}
 
-
-
-
+	// Assuming m_catLocation and m_cat have the same size
+	for (size_t k = 0; k < m_catLocation.size(); ++k) {
+		m_cat.push_back(Cat());
+		m_cat[k].setPosition(m_catLocation[k]);
+	}
+}
