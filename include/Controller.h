@@ -1,11 +1,10 @@
 #pragma once
 
 #include "Board.h"
+#include "Score.h"
 #include <cstdlib>
 #include <conio.h>
 #include <io.h>
-
-#include "Score.h"
 
 class Controller {
 public:
@@ -26,6 +25,13 @@ private:
 
 
 	void removeCat(Board& board, size_t counter);
+	void moveCat(Board& board);
+	Location randomMove(Board& board, Cat& catLocation);
+
+	bool checkNextCatStep(Board& board, Location& nextPos, Cat& cat);
+	bool collision(Board& board);
+	bool differentLocation(const Location& first, const Location& second);
+	void restPos(Board& board);
 
 	std::vector<std::string> setData(); // taking data from levels file 
 
