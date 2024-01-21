@@ -6,7 +6,7 @@
 
 #include <windows.h>
 
-#include "Cat.h"
+class Cat;
 #include "Mouse.h"
 #include "Level.h"
 #include "Cheese.h"
@@ -37,7 +37,7 @@ public:
 
 	// get and set function for the members
 	std::vector<std::string>& getMap();
-	std::string& getMapIndex(const size_t& Index);
+	
 
 	std::vector<Cat> getCat()const;
 	std::vector<Cat>& setCat();
@@ -45,6 +45,7 @@ public:
 	Mouse& setMouse();
 
 	Location getMouseLocation() const;
+	std::vector<Location> getCatLocation() const;
 
 	size_t getMapRowSize()const;
 	void setMapRowSize(const size_t& size);
@@ -58,11 +59,9 @@ public:
 	void SetCell(Location cell, char c);
 
 	void catsPosition();
-
 	bool isEaten(int level);
-	/*void printBoard(int level);*/
+	
 	void printStep(const char c, const std::string& color);
-
 
 private:
 	std::vector<std::string> m_map;
@@ -78,5 +77,4 @@ private:
 	int m_cheese;
 
 	int m_level;
-	void CreateFiguresOfCat(int level);
 };

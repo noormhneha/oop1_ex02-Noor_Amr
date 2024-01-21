@@ -1,27 +1,26 @@
+#pragma once
 #include "Board.h"
+#include "Cat.h"
 #include <cmath>
 
-Board::Board(int level, std::ifstream& input) : m_mapColSize(0), m_mapRowSize(0), m_cheese(0), m_level(level), m_mouseLocation{1,1}
+Board::Board(int level, std::ifstream& input)
+	: m_mapColSize(0), m_mapRowSize(0), m_cheese(0),
+	m_level(level), m_mouseLocation{ 1,1 }
 {
 	Level levelObj(input, *this); Cheese cheese(*this);
 	m_cheese = cheese.getCheeseCounter();
-	CreateFiguresOfCat(level);
+
 	m_mouseLocation = SetStartPos();
-	setMouse().setPosition(m_mouseLocation);
+	m_mouse.setPosition(m_mouseLocation);
+
 	catsPosition();
+
 }
 
 std::vector<std::string>& Board::getMap()
 {
 	return m_map;
 }
-
-std::string& Board::getMapIndex(const size_t& index)
-{
-	return m_map[index];
-}
-
-
 
 std::vector<Cat> Board::getCat() const
 {
@@ -46,6 +45,11 @@ Mouse& Board::setMouse()
 Location Board::getMouseLocation() const
 {
 	return m_mouseLocation;
+}
+
+std::vector<Location> Board::getCatLocation() const
+{
+	return m_catLocation;
 }
 
 size_t Board::getMapRowSize() const
@@ -113,13 +117,6 @@ bool Board::isEaten(int level)
 	return false;
 }
 
-
-
-void Board::CreateFiguresOfCat(int level)
-{
-	for (int i = 0; i < level; i++)
-		m_cat.push_back(Cat());
-}
 
 void Board::catsPosition()
 {
