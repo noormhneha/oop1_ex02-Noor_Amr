@@ -118,9 +118,11 @@ bool Controller::checkScoreStep(Board& board, Location& location)
 		}
 		break;
 	case DOOR:
-		if (doorOpen())
+		if (doorOpen()) {
 			board.getMap()[location.row].at(location.col) = ROAD;
-		break; // check key 
+			return true;
+		} 
+		return false; // check key 
 	case KEY:
 		// get
 		m_levelScore._counter_key++;
