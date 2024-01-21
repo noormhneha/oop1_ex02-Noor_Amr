@@ -142,6 +142,11 @@ bool Controller::checkScoreStep(Board& board, Location& location)
 		return false;
 		break;
 	}
+
+	if (collision(board)) 
+		catCatch(board);
+		
+	
 	return true;
 }
 
@@ -149,12 +154,13 @@ bool Controller::catCatch(Board board)
 {
 	if (m_levelScore._lives_remaining > 0) {
 		m_levelScore._lives_remaining--;
+		restPos(board);
 		return true; 
 	}
 	else {
 		//losegame
 		system("cls");
-		return false; // exit;
+		exit(EXIT_FAILURE); // exit;
 	}
 }
 
@@ -196,10 +202,10 @@ void Controller::moveCat(Board& board)
 
 			cat.setPosition(nextLoc);
 
-			if (collision(board)) {
+			if (collision(board)) 
 				catCatch(board);
-				restPos(board);
-			}
+				
+			
 
 		}
 
@@ -219,6 +225,36 @@ Location Controller::randomMove(Board& board, Cat& cat)
 		return nextStep;
 	
 	return tempLocation;
+}
+
+Location Controller::calculateDistance(Board& board, Cat& cat)
+{
+	Location mousePos = board.getMouse().getPosition();
+	Location catPos = cat.getPosition();
+	Location nextStep{ 0,0 };
+
+	nextStep.row = abs(catPos.row - mousePos.row);
+	nextStep.col = abs(catPos.col - mousePos.col);
+
+	if (nextStep.row >= nextStep.col) {
+		nextStep.col = catPos.col;
+		if (catPos.row - mousePos.row < 0)
+			nextStep.row = catPos.row + 1;
+		else
+			nextStep.row = catPos.row - 1;
+	}
+	else {
+		nextStep.row = catPos.row;
+		if (catPos.col - mousePos.col < 0)
+			nextStep.col = catPos.col + 1;
+		else
+			nextStep.col = catPos.col - 1;
+	}
+
+	if (checkNextCatStep(board, nextStep, cat))
+		return nextStep;
+
+	return catPos;
 }
 
 bool Controller::checkNextCatStep(Board& board, Location& nextPos, Cat& cat)
@@ -265,6 +301,8 @@ void Controller::restPos(Board& board)
 {
 	
 	std::vector<Location> catLoc = board.getCatLocation();
+	std::vector<Cat> cats = board.setCat();
+
 	Location mouseLoc = board.getMouseLocation();
 	
 	Screen::setLocation(board.getMouse().getPosition());
@@ -275,10 +313,13 @@ void Controller::restPos(Board& board)
 	board.SetCell(mouseLoc, MOUSE);
 	board.setMouse().setPosition(mouseLoc);
 
-	for (auto& cat : catLoc) {
-		Screen::setLocation(cat);
+	for (int i = 0; i < catLoc.size(); i++) {
+		Screen::setLocation(cats[i].getPosition());
+		board.printStep(ROAD, RESET);
+
+		cats[i].setPosition(catLoc[i]);
+		Screen::setLocation(catLoc[i]);
 		board.printStep(CAT, CATCOLOR);
-		
 	}
 
 	
