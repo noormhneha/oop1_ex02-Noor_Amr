@@ -26,7 +26,9 @@ private:
 
 	void removeCat(Board& board, size_t counter);
 	void moveCat(Board& board);
+
 	Location randomMove(Board& board, Cat& catLocation);
+	Location calculateDistance(Board& board, Cat& cat);
 
 	bool checkNextCatStep(Board& board, Location& nextPos, Cat& cat);
 	bool collision(Board& board);
