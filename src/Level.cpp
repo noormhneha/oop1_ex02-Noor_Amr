@@ -17,10 +17,3 @@ Level::Level(std::ifstream& level, Board& board) : m_level(level), m_board(board
     m_board.setMapColSize(m_board.getMap().at(0).length());
     m_board.setMapRowSize(m_board.getMap().size());
 }
-
-
-
-std::ifstream& Level::whichLevel()
-{
-    return m_level;
-}
