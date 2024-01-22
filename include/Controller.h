@@ -43,4 +43,6 @@ private:
 	std::vector<Location> m_allCatsLocation;
 
 	Score m_levelScore;
+
+	bool resetCats = false;
 };
