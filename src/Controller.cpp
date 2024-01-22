@@ -2,16 +2,26 @@
 #include "Controller.h"
 #include "Cat.h"
 
-Controller::Controller() : playList("Levels.txt"), m_levels{ "Level001.txt" } 
+// Constructor for the Controller class
+Controller::Controller() : playList("Levels.txt"), m_levels{ "Level001.txt" }
 {
+	// Initialize m_levels vector with data from the setData() function
 	m_levels = setData();
+	// Initialize m_levelScore with values
 	m_levelScore = { 3, 0, 0, 0 };
+	// Iterate through each level in m_levels
 	for (auto i = m_levels.begin(); i != m_levels.end(); i++) {
-		std::ifstream level(*i); // level map
+		// Open the level file for reading (level map)
+		std::ifstream level(*i);
+
+		// Call the gameLevel function to process the level
 		gameLevel(level);
+
+		// Clear the console screen 
 		system("cls");
 	}
-} 
+}
+
 // -----------------------------------------------------------------------------
 
 std::vector<std::string> Controller::setData()
@@ -40,6 +50,7 @@ void Controller::gameLevel(std::ifstream& level) {
 	m_allCatsLocation = board.getCatLocation();
 	m_levelScore._cheese_counter = board.cheeseCounter();
 	while (!exit && m_levelScore._cheese_counter > 0) {
+		resetCats = false;
 		Location temp = board.getMouse().getPosition();
 		printScore(board);
  		const auto c = _getch();
@@ -55,7 +66,7 @@ void Controller::gameLevel(std::ifstream& level) {
 			exit = handleRegularKey();
 			break;
 		}
-		if (differentLocation(temp, board.getMouse().getPosition()))
+		if (differentLocation(temp, board.getMouse().getPosition()) && !resetCats)
 			moveCat(board);
 	}
 	m_levelScore._score += 25;
@@ -86,7 +97,7 @@ void Controller::whichPressed(const auto c, Location& location) {
 
 void Controller::handleSpecialKey(Board& board)
 {
-	Screen::setLocation(board.getMouse().getPosition());
+	
 	const auto c = _getch();
 	Location nextLocation = board.getMouse().getPosition();
 	whichPressed(c, nextLocation);
@@ -96,10 +107,14 @@ void Controller::handleSpecialKey(Board& board)
 
 void Controller::nextStep(Board& board, Location nextLocation) {
 	if (checkScoreStep(board, nextLocation)) {
+		Screen::setLocation(board.getMouse().getPosition());
 		board.printStep(ROAD, RESET);
+		board.SetCell(board.getMouse().getPosition(), ROAD);
+
 		Screen::setLocation(nextLocation);
 		board.printStep(MOUSE, MOUSECOLOR);
 		board.setMouse().setPosition(nextLocation);
+		board.SetCell(nextLocation, MOUSE);
 	}
 }
 // -----------------------------------------------------------------------------
@@ -123,12 +138,10 @@ bool Controller::checkScoreStep(Board& board, Location& location)
 	case KEY:
 		// get
 		m_levelScore._counter_key++;
-		board.getMap()[location.row].at(location.col) = ROAD;
 		break;
 
 	case CHEESE:
 		// eat
-		board.getMap()[location.row].at(location.col) = ROAD;
 		m_levelScore._cheese_counter--;
 		m_levelScore._score += 10;
 		break;
@@ -138,7 +151,6 @@ bool Controller::checkScoreStep(Board& board, Location& location)
 		removeCat(board, counter);
 		counter++;
 		m_levelScore._score += 5;
-		board.getMap()[location.row].at(location.col) = ROAD;
 		break;
 	case WALL:
 		// stop
@@ -153,9 +165,8 @@ bool Controller::catCatch(Board& board, Location& location)
 {
 	if (m_levelScore._lives_remaining > 0) {
 		m_levelScore._lives_remaining--;
-		location = board.getMouseLocation();
 		restPos(board, location);
-		return true; 
+		return false; 
 	}
 	else {
 		//losegame
@@ -168,7 +179,6 @@ bool Controller::doorOpen(Board& board, Location& location) {
 	if (m_levelScore._counter_key > 0) {
 		m_levelScore._score += 2;
 		m_levelScore._counter_key--;
-		board.getMap()[location.row].at(location.col) = ROAD;
 		return true;
 	}
 	return false;
@@ -277,7 +287,7 @@ bool Controller::checkNextCatStep(Board& board, Location& nextPos, Cat& cat)
 	{
 	case CAT: case DOOR: case WALL: return false;
 
-	case KEY: case CHEESE: case GIFT: case MOUSE: case ROAD:
+	case KEY: case CHEESE: case GIFT: case ROAD:
 		cat.setNextChar(c);
 		return true;
 	}
@@ -302,19 +312,34 @@ bool Controller::differentLocation(const Location& first, const Location& second
 void Controller::restPos(Board& board, Location& location) {
 	std::vector<Location> catLoc = m_allCatsLocation;
 	std::vector<Cat> cats = board.setCat();
-	
-	board.printStep(ROAD, RESET);
-	Screen::setLocation(location);
 
-	for (int i = 0; i < catLoc.size(); i++) {
+	Location tempMouse = board.getMouse().getPosition();
+	Location nextLocation = board.getMouseLocation();
+
+	board.SetCell(tempMouse, ROAD);
+	Screen::setLocation(tempMouse);
+	board.printStep(ROAD, RESET);
+
+	Screen::setLocation(nextLocation);
+	board.printStep(MOUSE, MOUSECOLOR);
+	board.setMouse().setPosition(nextLocation);
+	board.SetCell(nextLocation, MOUSE);
+
+	for (int i = 0; i < cats.size(); i++) {
 		Screen::setLocation(cats[i].getPosition());
-		board.printStep(ROAD, RESET);
-		//board.SetCell(cats[i].getPosition(), ROAD);
+		board.printColoredStep(cats[i].getNextChar(), board);
+
+		board.SetCell(cats[i].getPosition(), cats[i].getNextChar());
+
+		cats[i].setNextChar(ROAD);
 
 		Screen::setLocation(catLoc[i]);
-		board.setCat().at(i).setPosition(catLoc[i]);
 		board.printStep(CAT, CATCOLOR);
+		board.setCat().at(i).setPosition(catLoc[i]);
+		board.SetCell(catLoc[i], CAT);
 	}
+
+	resetCats = true;
 }
 
 void Controller::printScore(Board board) const

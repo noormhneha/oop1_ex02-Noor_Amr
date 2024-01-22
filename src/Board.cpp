@@ -97,7 +97,7 @@ Location Board::SetStartPos()
 // set a cell to a received char in a received cell
 void Board::SetCell(Location cell, char c)
 {
-	m_map[cell.col][cell.row] = c;
+	m_map[cell.row].at(cell.col) = c;
 }
 
 
