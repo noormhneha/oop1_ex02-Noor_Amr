@@ -10,7 +10,6 @@ class Controller {
 public:
 	Controller();
 
-
 private:
 	void printChooseLevel();
 

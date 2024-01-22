@@ -61,6 +61,8 @@ public:
 	void catsPosition();
 	void printColoredStep(const char c, Board& board);
 
+	bool checkBorder(const Location& location);
+
 	bool isEaten(int level);
 	
 	void printStep(const char c, const std::string& color);
