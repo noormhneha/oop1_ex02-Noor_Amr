@@ -56,7 +56,7 @@ void Controller::gameLevel(std::ifstream& level, int counter)
 			exit = handleRegularKey();
 			break;
 		}
-		if (differentLocation(temp, board.getMouse().getPosition()))
+		if (differentLocation(temp, board.getCatLocation().at(0)))
 			moveCat(board);
 
 	}
@@ -113,12 +113,16 @@ bool Controller::checkScoreStep(Board& board, Location& location)
 	char c = board.getMap()[location.row].at(location.col);
 	switch (c)
 	{
-	case DOOR:
-		if (doorOpen()) {
-			board.getMap()[location.row].at(location.col) = ROAD;
+	case CAT: 
+		// lose 
+		if (catCatch(board)) {
+			location = board.getMouseLocation();
 			return true;
-		} 
-		return false; // check key 
+		}
+		break;
+
+	case DOOR: return (doorOpen(board, location)); // check key 
+
 	case KEY:
 		// get
 		m_levelScore._counter_key++;
@@ -154,7 +158,7 @@ bool Controller::catCatch(Board board)
 {
 	if (m_levelScore._lives_remaining > 0) {
 		m_levelScore._lives_remaining--;
-		restPos(board);
+		//restPos(board);
 		return true; 
 	}
 	else {
@@ -164,10 +168,11 @@ bool Controller::catCatch(Board board)
 	}
 }
 
-bool Controller::doorOpen() {
+bool Controller::doorOpen(Board& board, Location& location) {
 	if (m_levelScore._counter_key > 0) {
 		m_levelScore._score += 2;
 		m_levelScore._counter_key--;
+		board.getMap()[location.row].at(location.col) = ROAD;
 		return true;
 	}
 	return false;
@@ -195,32 +200,55 @@ void Controller::moveCat(Board& board)
 		if (differentLocation(tempLoc, nextLoc)) {
 			
 			Screen::setLocation(tempLoc);
-			board.printStep(cat.getNextChar(), RESET);
+			printColoredStep(cat.getNextChar(), board);
 
 			Screen::setLocation(nextLoc);
 			board.printStep(CAT, CATCOLOR);
 
+			cat.setNextChar(ROAD);
+			board.getMap()[tempLoc.row].at(tempLoc.col) = ROAD;
 			cat.setPosition(nextLoc);
 
 			if (collision(board)) 
 				catCatch(board);
 				
-			
-
 		}
 
 	}
 }
 
+void Controller::printColoredStep(const char c, Board& board) {
+	switch (c) {
+	case CAT:
+		board.printStep(c, CATCOLOR);
+		break;
+	case CHEESE:
+		board.printStep(c, CHEESECOLOR);
+		break;
+	case GIFT:
+		board.printStep(c, GIFTCOLOR);
+		break;
+	case KEY:
+		board.printStep(c, KEYCOLOR);
+		break;
+	default:
+		board.printStep(c, RESET);
+		break;
+	}
+}
+
 Location Controller::randomMove(Board& board, Cat& cat)
 {
+	static int i = 0;
 	srand((unsigned)time(NULL));
 	int moves[4] = { SpecialKeys::UP, SpecialKeys:: DOWN,
 					SpecialKeys:: RIGHT, SpecialKeys:: LEFT };
 
 	Location nextStep = cat.getPosition();
 	Location tempLocation = nextStep;
-	whichPressed(moves[rand() % 4], nextStep);
+	whichPressed(moves[rand() % 4] + i, nextStep);
+	i++;
+	i %= 4;
 	if (checkNextCatStep(board, nextStep, cat))
 		return nextStep;
 	
@@ -292,9 +320,11 @@ bool Controller::collision(Board& board)
 
 bool Controller::differentLocation(const Location& first, const Location& second)
 {
-	if (first.col != second.col || first.row != second.row)
-		return true;
-	return false;
+	//if (first.col != second.col || first.row != second.row)
+	//	return true;
+	//return false;
+
+	return !(first.col == second.col && first.row == second.row);
 }
 
 void Controller::restPos(Board& board)

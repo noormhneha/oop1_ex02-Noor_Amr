@@ -19,13 +19,15 @@ private:
 
 	bool checkScoreStep(Board& board, Location& location);
 	bool catCatch(Board board);
-	bool doorOpen();
+	bool doorOpen(Board& board, Location& location);
 
 	void printScore(Board board) const;
 
 
 	void removeCat(Board& board, size_t counter);
 	void moveCat(Board& board);
+
+	void printColoredStep(const char c, Board& board);
 
 	Location randomMove(Board& board, Cat& catLocation);
 	Location calculateDistance(Board& board, Cat& cat);
