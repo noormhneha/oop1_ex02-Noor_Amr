@@ -1,7 +1,6 @@
 ﻿#include "Controller.h"
 
-int main()
-{
+int main() {
 	Controller controller;
 	return EXIT_SUCCESS;
 }
