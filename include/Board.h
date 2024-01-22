@@ -29,6 +29,10 @@ const char ROAD = ' ';
 #define KEYCOLOR     "\033[1;36m" // Bright Cyan
 #define GIFTCOLOR    "\033[1;31m" // Bright Red
 
+#define RED          "\033[1;31m"
+#define GREEN        "\033[1;32m"
+#define BLUE         "\033[1;34m"
+
 class Board
 {
 public:
@@ -77,6 +81,7 @@ private:
 
 	size_t m_mapRowSize;
 	size_t m_mapColSize;
+
 
 	int m_cheese;
 };

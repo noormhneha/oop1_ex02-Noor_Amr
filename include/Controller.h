@@ -13,7 +13,7 @@ public:
 private:
 	void printChooseLevel();
 
-	void gameLevel(std::ifstream& level);
+	void gameLevel(std::ifstream& level, const std::string fileName);
 	void whichPressed(const auto c, Location& location);
 	void handleSpecialKey(Board& board);
 	bool handleRegularKey();
@@ -23,7 +23,7 @@ private:
 	bool catCatch(Board& board);
 	bool doorOpen();
 
-	void printScore(Board board) const;
+	void printScore(Board board, const std::string fileName) const;
 
 
 	void removeCat(Board& board, size_t counter);

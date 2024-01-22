@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Controller.h"
 #include "Cat.h"
 
@@ -17,7 +17,7 @@ Controller::Controller() : playList("Levels.txt"), m_levels{ "Level001.txt" }
 		std::ifstream level(*i);
 
 		// Call the gameLevel function to process the level
-		gameLevel(level);
+		gameLevel(level, *i);
 
 		// Clear the console screen 
 		system("cls");
@@ -74,11 +74,9 @@ std::vector<std::string> Controller::setData()
 
 // -----------------------------------------------------------------------------
 // Function to manage the gameplay for a given level
-void Controller::gameLevel(std::ifstream& level) {
-	
+void Controller::gameLevel(std::ifstream& level,const std::string fileName) {
 	bool exit = false; // Variable to determine if the player wants to exit the level
 	Board board(level); 	// Create a Board object, initializing it with the level read from the file
-
 	m_allCatsLocation = board.getCatLocation();	// Get the initial positions of all cats on the board
 	m_levelScore._cheese_counter = board.cheeseCounter(); 	// Initialize the cheese counter with the number of cheeses on the board
 
@@ -87,7 +85,7 @@ void Controller::gameLevel(std::ifstream& level) {
 		resetCats = false; // Flag to determine if the cats need to be reset
 
 		Location temp = board.getMouse().getPosition(); // Get the current position of the mouse
-		printScore(board); // Print the current score and board
+		printScore(board, fileName); // Print the current score and board
 		const auto c = _getch(); // Wait for user input
 		// Handle user input based on the pressed key
 		switch (c) {
@@ -379,11 +377,13 @@ void Controller::restPos(Board& board) {
 	resetCats = true;
 }
 
-void Controller::printScore(Board board) const
+void Controller::printScore(Board board, const std::string fileName) const
 {
+	
 	size_t size = board.getMap().size() + 1;
 	Screen::setLocation({int(size), 0});
+	std::cout << GREEN <<  "We are in LEVEL " << fileName.substr(5, 3) << std::endl << std::endl;
 	std::cout << "Score -> " << m_levelScore._score << std::endl;
 	std::cout << "Lives -> " << m_levelScore._lives_remaining << std::endl;
-	std::cout << "Keys -> " << m_levelScore._counter_key << std::endl;
+	std::cout << "Keys  -> " << m_levelScore._counter_key << std::endl << RESET;
 }
