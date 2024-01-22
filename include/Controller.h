@@ -19,7 +19,6 @@ private:
 
 	bool checkScoreStep(Board& board, Location& location);
 	bool catCatch(Board& board, Location& location);
-	void returnCats(Board& board);
 	bool doorOpen(Board& board, Location& location);
 
 	void printScore(Board board) const;

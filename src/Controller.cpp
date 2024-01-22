@@ -151,11 +151,9 @@ bool Controller::checkScoreStep(Board& board, Location& location)
 
 bool Controller::catCatch(Board& board, Location& location)
 {
-
 	if (m_levelScore._lives_remaining > 0) {
 		m_levelScore._lives_remaining--;
 		location = board.getMouseLocation();
-		//returnCats(board);
 		restPos(board, location);
 		return true; 
 	}
@@ -164,14 +162,6 @@ bool Controller::catCatch(Board& board, Location& location)
 		system("cls");
 		exit(EXIT_FAILURE); // exit;
 	}
-}
-
-void Controller::returnCats(Board& board) {
-	for (size_t i = 0; i < board.getCat().size(); i++) {
-		board.setCat().at(i).setPosition(m_allCatsLocation.at(i));
-		//board.getMap()[location.row].at(location.col) = CAT;
-	}
-	//restPos
 }
 
 bool Controller::doorOpen(Board& board, Location& location) {
@@ -185,50 +175,52 @@ bool Controller::doorOpen(Board& board, Location& location) {
 }
 
 void Controller::removeCat(Board& board, size_t counter) {
-	std::vector cat = board.getCat();
+	Cat cat = board.setCat().at(counter);
+	char tempChar = cat.getNextChar();
 	Location location = board.getMouseLocation();
-	if (counter < cat.size()) {
-		board.printStep(ROAD, RESET);	
-		Location temp = cat[counter].getPosition();
-		Screen::setLocation(temp);
-		board.printStep(ROAD, RESET);
-		board.getMap()[temp.row].at(temp.col) = ROAD;
-	}
+	
+	Location temp = cat.getPosition();
+	board.printStep(ROAD, RESET);	
+	Screen::setLocation(temp);
+	board.printColoredStep(tempChar, board);
+	board.getMap()[temp.row].at(temp.col) = tempChar;
+
+	m_allCatsLocation.erase(m_allCatsLocation.begin() + counter);
+	m_allCatsLocation.shrink_to_fit();	
+	
+	board.setCat().erase(board.setCat().begin() + counter);
+	board.setCat().shrink_to_fit();
+
+	//cat.setPosition(temp);
+		
 	Screen::setLocation(location);
 }
 
 void Controller::moveCat(Board& board)
 {
-	static int i = 0;  i %= board.getCat().size();
+	for (auto& cat : board.setCat()) {
+		char temp = cat.getNextChar();
+		Location tempLoc = cat.getPosition();
+		Location nextLoc = calculateDistance(board, cat);
+		cat.setNextChar(cat.getNextChar());
+		Screen::setLocation(tempLoc);
+		if (differentLocation(tempLoc, nextLoc)) {
+			board.printColoredStep(temp, board);
+			Screen::setLocation(nextLoc);
+			board.printStep(CAT, CATCOLOR);
 
-	Cat cat = board.setCat().at(i);
-	char temp = cat.getNextChar();
+			board.getMap()[tempLoc.row].at(tempLoc.col) = temp;
+			board.getMap()[nextLoc.row].at(nextLoc.col) = CAT;
+			cat.setPosition(nextLoc);
 
-	Location tempLoc = cat.getPosition();
-	Location nextLoc = calculateDistance(board, cat);;
-	//calculateDistance(board, cat);
-	board.setCat().at(i).setNextChar(cat.getNextChar()); 
-
-	Screen::setLocation(tempLoc);
-
-	if (differentLocation(tempLoc, nextLoc)) {
-		board.printColoredStep(temp, board);
-		Screen::setLocation(nextLoc);
-		board.printStep(CAT, CATCOLOR);
-		
-		board.getMap()[tempLoc.row].at(tempLoc.col) = temp;
-		board.getMap()[nextLoc.row].at(nextLoc.col) = CAT;
-		board.setCat().at(i).setPosition(nextLoc);
-
-		if (collision(board)) {
-			Location tempMouseLoct = { 1,1 };
-			catCatch(board, tempMouseLoct);
-			board.setMouse().setPosition(tempMouseLoct);
-			restPos(board, tempMouseLoct);
+			if (collision(board)) {
+				Location tempMouseLoct = { 1,1 };
+				catCatch(board, tempMouseLoct);
+				board.setMouse().setPosition(tempMouseLoct);
+				restPos(board, tempMouseLoct);
+			}
 		}
 	}
-
-	i++;
 }
 
 Location Controller::randomMove(Board& board, Cat& cat)
