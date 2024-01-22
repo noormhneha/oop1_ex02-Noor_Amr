@@ -5,15 +5,14 @@
 Controller::Controller() : playList("Levels.txt"), m_levels{ "Level001.txt" } 
 {
 	m_levels = setData();
-	int counter = 0;
+	m_levelScore = { 3, 0, 0, 0 };
 	for (auto i = m_levels.begin(); i != m_levels.end(); i++) {
 		std::ifstream level(*i); // level map
-		m_levelScore = { 3, 0, 0, 0 };
-		gameLevel(level, counter);
+		gameLevel(level);
 		system("cls");
-		counter++;
 	}
-}
+} 
+// -----------------------------------------------------------------------------
 
 std::vector<std::string> Controller::setData()
 {
@@ -34,11 +33,11 @@ std::vector<std::string> Controller::setData()
 
 	return levels;
 }
-
-void Controller::gameLevel(std::ifstream& level, int counter)
-{	
+// -----------------------------------------------------------------------------
+void Controller::gameLevel(std::ifstream& level) {	
 	bool exit = false;
-	Board board(counter, level); 
+	Board board(level); 
+	m_allCatsLocation = board.getCatLocation();
 	m_levelScore._cheese_counter = board.cheeseCounter();
 	while (!exit && m_levelScore._cheese_counter > 0) {
 		Location temp = board.getMouse().getPosition();
@@ -58,8 +57,9 @@ void Controller::gameLevel(std::ifstream& level, int counter)
 		}
 		if (differentLocation(temp, board.getMouse().getPosition()))
 			moveCat(board);
-
 	}
+	m_levelScore._score += 25;
+	m_levelScore._score += (5 * int(board.getCat().size()));
 }
 
 void Controller::whichPressed(const auto c, Location& location) {
@@ -81,6 +81,7 @@ void Controller::whichPressed(const auto c, Location& location) {
 		break;
 	}
 }
+// -----------------------------------------------------------------------------
 
 
 void Controller::handleSpecialKey(Board& board)
@@ -91,6 +92,7 @@ void Controller::handleSpecialKey(Board& board)
 	whichPressed(c, nextLocation);
 	nextStep(board, nextLocation);
 }
+// -----------------------------------------------------------------------------
 
 void Controller::nextStep(Board& board, Location nextLocation) {
 	if (checkScoreStep(board, nextLocation)) {
@@ -99,8 +101,9 @@ void Controller::nextStep(Board& board, Location nextLocation) {
 		board.printStep(MOUSE, MOUSECOLOR);
 		board.setMouse().setPosition(nextLocation);
 	}
-	//else exit(EXIT_FAILURE);
 }
+// -----------------------------------------------------------------------------
+
 
 bool Controller::handleRegularKey()
 {
@@ -113,23 +116,23 @@ bool Controller::checkScoreStep(Board& board, Location& location)
 	char c = board.getMap()[location.row].at(location.col);
 	switch (c)
 	{
-	case DOOR:
-		if (doorOpen()) {
-			board.getMap()[location.row].at(location.col) = ROAD;
-			return true;
-		} 
-		return false; // check key 
+	case CAT:  return (catCatch(board, location)); // lose 
+
+	case DOOR: return (doorOpen(board, location)); // check key 
+
 	case KEY:
 		// get
 		m_levelScore._counter_key++;
 		board.getMap()[location.row].at(location.col) = ROAD;
 		break;
+
 	case CHEESE:
 		// eat
 		board.getMap()[location.row].at(location.col) = ROAD;
 		m_levelScore._cheese_counter--;
 		m_levelScore._score += 10;
 		break;
+
 	case GIFT:
 		// delete cat
 		removeCat(board, counter);
@@ -142,19 +145,16 @@ bool Controller::checkScoreStep(Board& board, Location& location)
 		return false;
 		break;
 	}
-
-	if (collision(board)) 
-		catCatch(board);
-		
 	
 	return true;
 }
 
-bool Controller::catCatch(Board board)
+bool Controller::catCatch(Board& board, Location& location)
 {
 	if (m_levelScore._lives_remaining > 0) {
 		m_levelScore._lives_remaining--;
-		restPos(board);
+		location = board.getMouseLocation();
+		restPos(board, location);
 		return true; 
 	}
 	else {
@@ -164,51 +164,62 @@ bool Controller::catCatch(Board board)
 	}
 }
 
-bool Controller::doorOpen() {
+bool Controller::doorOpen(Board& board, Location& location) {
 	if (m_levelScore._counter_key > 0) {
 		m_levelScore._score += 2;
 		m_levelScore._counter_key--;
+		board.getMap()[location.row].at(location.col) = ROAD;
 		return true;
 	}
 	return false;
 }
 
 void Controller::removeCat(Board& board, size_t counter) {
-	std::vector cat = board.getCat();
+	Cat cat = board.setCat().at(counter);
+	char tempChar = cat.getNextChar();
 	Location location = board.getMouseLocation();
-	if (counter < cat.size()) {
-		board.printStep(ROAD, RESET);	
-		Location temp = cat[counter].getPosition();
-		Screen::setLocation(temp);
-		board.printStep(ROAD, RESET);
-		board.getMap()[temp.row].at(temp.col) = ROAD;
-	}
+	
+	Location temp = cat.getPosition();
+	board.printStep(ROAD, RESET);	
+	Screen::setLocation(temp);
+	board.printColoredStep(tempChar, board);
+	board.getMap()[temp.row].at(temp.col) = tempChar;
+
+	m_allCatsLocation.erase(m_allCatsLocation.begin() + counter);
+	m_allCatsLocation.shrink_to_fit();	
+	
+	board.setCat().erase(board.setCat().begin() + counter);
+	board.setCat().shrink_to_fit();
+
+	//cat.setPosition(temp);
+		
 	Screen::setLocation(location);
 }
 
 void Controller::moveCat(Board& board)
 {
 	for (auto& cat : board.setCat()) {
+		char temp = cat.getNextChar();
 		Location tempLoc = cat.getPosition();
-		Location nextLoc = randomMove(board, cat);
-
+		Location nextLoc = calculateDistance(board, cat);
+		cat.setNextChar(cat.getNextChar());
+		Screen::setLocation(tempLoc);
 		if (differentLocation(tempLoc, nextLoc)) {
-			
-			Screen::setLocation(tempLoc);
-			board.printStep(cat.getNextChar(), RESET);
-
+			board.printColoredStep(temp, board);
 			Screen::setLocation(nextLoc);
 			board.printStep(CAT, CATCOLOR);
 
+			board.getMap()[tempLoc.row].at(tempLoc.col) = temp;
+			board.getMap()[nextLoc.row].at(nextLoc.col) = CAT;
 			cat.setPosition(nextLoc);
 
-			if (collision(board)) 
-				catCatch(board);
-				
-			
-
+			if (collision(board)) {
+				Location tempMouseLoct = { 1,1 };
+				catCatch(board, tempMouseLoct);
+				board.setMouse().setPosition(tempMouseLoct);
+				restPos(board, tempMouseLoct);
+			}
 		}
-
 	}
 }
 
@@ -220,7 +231,9 @@ Location Controller::randomMove(Board& board, Cat& cat)
 
 	Location nextStep = cat.getPosition();
 	Location tempLocation = nextStep;
-	whichPressed(moves[rand() % 4], nextStep);
+	int i = rand() % 4;
+	whichPressed(moves[i] , nextStep);
+
 	if (checkNextCatStep(board, nextStep, cat))
 		return nextStep;
 	
@@ -262,20 +275,11 @@ bool Controller::checkNextCatStep(Board& board, Location& nextPos, Cat& cat)
 	char c = board.getMap()[nextPos.row].at(nextPos.col);
 	switch (c)
 	{
-	case DOOR:
-		return false; 
-	case KEY:
-		cat.setNextChar(KEY);
+	case CAT: case DOOR: case WALL: return false;
+
+	case KEY: case CHEESE: case GIFT: case MOUSE: case ROAD:
+		cat.setNextChar(c);
 		return true;
-	case CHEESE:
-		cat.setNextChar(CHEESE);
-		return true;
-	case GIFT:
-		cat.setNextChar(GIFT);
-		return true;
-	case WALL:
-		// stop
-		return false;
 	}
 	return true;
 }
@@ -292,37 +296,25 @@ bool Controller::collision(Board& board)
 
 bool Controller::differentLocation(const Location& first, const Location& second)
 {
-	if (first.col != second.col || first.row != second.row)
-		return true;
-	return false;
+	return !(first.col == second.col && first.row == second.row);
 }
 
-void Controller::restPos(Board& board)
-{
-	
-	std::vector<Location> catLoc = board.getCatLocation();
+void Controller::restPos(Board& board, Location& location) {
+	std::vector<Location> catLoc = m_allCatsLocation;
 	std::vector<Cat> cats = board.setCat();
-
-	Location mouseLoc = board.getMouseLocation();
 	
-	Screen::setLocation(board.getMouse().getPosition());
 	board.printStep(ROAD, RESET);
-
-	Screen::setLocation(mouseLoc);
-	board.printStep(MOUSE,MOUSECOLOR);
-	board.SetCell(mouseLoc, MOUSE);
-	board.setMouse().setPosition(mouseLoc);
+	Screen::setLocation(location);
 
 	for (int i = 0; i < catLoc.size(); i++) {
 		Screen::setLocation(cats[i].getPosition());
 		board.printStep(ROAD, RESET);
+		//board.SetCell(cats[i].getPosition(), ROAD);
 
-		cats[i].setPosition(catLoc[i]);
 		Screen::setLocation(catLoc[i]);
+		board.setCat().at(i).setPosition(catLoc[i]);
 		board.printStep(CAT, CATCOLOR);
 	}
-
-	
 }
 
 void Controller::printScore(Board board) const
