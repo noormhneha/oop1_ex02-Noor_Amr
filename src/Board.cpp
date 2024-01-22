@@ -3,9 +3,8 @@
 #include "Cat.h"
 #include <cmath>
 
-Board::Board(int level, std::ifstream& input)
-	: m_mapColSize(0), m_mapRowSize(0), m_cheese(0),
-	m_level(level), m_mouseLocation{ 1,1 }
+Board::Board(std::ifstream& input)
+	: m_mapColSize(0), m_mapRowSize(0), m_cheese(0), m_mouseLocation{ 1,1 }
 {
 	Level levelObj(input, *this); Cheese cheese(*this);
 	m_cheese = cheese.getCheeseCounter();
@@ -133,5 +132,32 @@ void Board::catsPosition()
 	for (size_t k = 0; k < m_catLocation.size(); ++k) {
 		m_cat.push_back(Cat());
 		m_cat[k].setPosition(m_catLocation[k]);
+	}
+}
+
+
+void Board::printColoredStep(const char c, Board& board) {
+	switch (c) {
+	case MOUSE:
+		board.printStep(c, MOUSECOLOR);
+		break;
+	case DOOR:
+		board.printStep(c, DOORCOLOR);
+		break;
+	case CHEESE:
+		board.printStep(c, CHEESECOLOR);
+		break;
+	case GIFT:
+		board.printStep(c, GIFTCOLOR);
+		break;
+	case KEY:
+		board.printStep(c, KEYCOLOR);
+		break;
+	case CAT:
+		board.printStep(c, CATCOLOR);
+		break;
+	default:
+		board.printStep(c, RESET);
+		break;
 	}
 }

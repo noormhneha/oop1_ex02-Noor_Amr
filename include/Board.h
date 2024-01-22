@@ -32,7 +32,7 @@ const char ROAD = ' ';
 class Board
 {
 public:
-	Board(int level, std::ifstream& input);
+	Board(std::ifstream& input);
 
 
 	// get and set function for the members
@@ -59,6 +59,8 @@ public:
 	void SetCell(Location cell, char c);
 
 	void catsPosition();
+	void printColoredStep(const char c, Board& board);
+
 	bool isEaten(int level);
 	
 	void printStep(const char c, const std::string& color);
@@ -75,6 +77,4 @@ private:
 	size_t m_mapColSize;
 
 	int m_cheese;
-
-	int m_level;
 };
