@@ -10,7 +10,10 @@ class Controller {
 public:
 	Controller();
 
+
 private:
+	void printChooseLevel();
+
 	void gameLevel(std::ifstream& level);
 	void whichPressed(const auto c, Location& location);
 	void handleSpecialKey(Board& board);
@@ -18,8 +21,8 @@ private:
 	void nextStep(Board& board, Location location);
 
 	bool checkScoreStep(Board& board, Location& location);
-	bool catCatch(Board& board, Location& location);
-	bool doorOpen(Board& board, Location& location);
+	bool catCatch(Board& board);
+	bool doorOpen();
 
 	void printScore(Board board) const;
 
@@ -33,7 +36,7 @@ private:
 	bool checkNextCatStep(Board& board, Location& nextPos, Cat& cat);
 	bool collision(Board& board);
 	bool differentLocation(const Location& first, const Location& second);
-	void restPos(Board& board, Location& location);
+	void restPos(Board& board);
 
 	std::vector<std::string> setData(); // taking data from levels file 
 
@@ -45,4 +48,6 @@ private:
 	Score m_levelScore;
 
 	bool resetCats = false;
+	
+	bool m_easyLevel = true;
 };
