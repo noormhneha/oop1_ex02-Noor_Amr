@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 #include "Controller.h"
 #include "Cat.h"
 
 // Constructor for the Controller class
-Controller::Controller() : playList("Levels.txt"), m_levels{ "Level001.txt" }
+Controller::Controller() : m_playList("Levels.txt"), m_levels{ "Level001.txt" }
 {
 	// level
 	printChooseLevel();
@@ -17,7 +17,7 @@ Controller::Controller() : playList("Levels.txt"), m_levels{ "Level001.txt" }
 		std::ifstream level(*i);
 
 		// Call the gameLevel function to process the level
-		gameLevel(level);
+		gameLevel(level, *i);
 
 		// Clear the console screen 
 		system("cls");
@@ -26,15 +26,15 @@ Controller::Controller() : playList("Levels.txt"), m_levels{ "Level001.txt" }
 
 // -----------------------------------------------------------------------------
 void Controller::printChooseLevel() {
-	std::cout << "Choose your level - press 1 for easy following | press 2 for hard following\n";
+	std::cout << GREEN << "\nChoose your level - press 1 for easy following | press 2 for hard following\nInsert: ";
 	int i = 0;
 	std::cin >> i;
 	while (i < 1 || i > 2) {
-		std::cout << "Wrong choise! \n1 - easy | 2 - hard \n";
+		std::cout << "Wrong choice! \n1 - easy | 2 - hard \nInsert: ";
 		std::cin >> i;
 	}
-	i == 1 ? m_easyLevel = true : m_easyLevel = false;
-	std::cout << "Your choosed: " << (i == 1 ? "easy level" : "hard level") << " - Press Enter to continue" << std::endl;
+	i == 1 ? m_easyLevel = true : m_easyLevel = false; // same as m_easyLevel = (i == 1)
+	std::cout << "Your choice: " << (i == 1 ? "easy level" : "hard level") << " - Press Enter to continue" << std::endl << RESET;
 	std::cin.get(); std::cin.get();
 	system("cls");
 }
@@ -45,10 +45,10 @@ void Controller::printChooseLevel() {
 std::vector<std::string> Controller::setData()
 {
 	// Open the file containing the list of level names
-	std::ifstream levellist(playList);
+	std::ifstream levelList(m_playList);
 
 	// Check if the file is successfully opened
-	if (!levellist.is_open()) {
+	if (!levelList.is_open()) {
 		// If the file cannot be opened, print an error message and exit the program
 		std::cerr << "Error opening file!";
 		exit(EXIT_FAILURE);
@@ -61,12 +61,12 @@ std::vector<std::string> Controller::setData()
 	std::string line;
 
 	// Read each line from the file and add it to the vector
-	while (std::getline(levellist, line)) {
+	while (std::getline(levelList, line)) {
 		levels.push_back(line);
 	}
 
 	// Close the file after reading all lines
-	levellist.close();
+	levelList.close();
 
 	// Return the vector containing the level names
 	return levels;
@@ -74,37 +74,38 @@ std::vector<std::string> Controller::setData()
 
 // -----------------------------------------------------------------------------
 // Function to manage the gameplay for a given level
-void Controller::gameLevel(std::ifstream& level) {
-	
-	bool exit = false; // Variable to determine if the player wants to exit the level
+void Controller::gameLevel(std::ifstream& level,const std::string fileName) {
+	bool exit_level = false; // Variable to determine if the player wants to exit the level
 	Board board(level); 	// Create a Board object, initializing it with the level read from the file
-
 	m_allCatsLocation = board.getCatLocation();	// Get the initial positions of all cats on the board
-	m_levelScore._cheese_counter = board.cheeseCounter(); 	// Initialize the cheese counter with the number of cheeses on the board
+	m_levelScore.m_cheese_counter = board.cheeseCounter(); 	// Initialize the cheese counter with the number of cheeses on the board
 
 	// Loop until the player exits or runs out of cheese
-	while (!exit && m_levelScore._cheese_counter > 0) {
-		resetCats = false; // Flag to determine if the cats need to be reset
-
+	while (!exit_level && m_levelScore.m_cheese_counter > 0) {
+		m_resetCats = false; // Flag to determine if the cats need to be reset
 		Location temp = board.getMouse().getPosition(); // Get the current position of the mouse
-		printScore(board); // Print the current score and board
+		printScore(board.getMap().size() + 1 , fileName); // Print the current score and board
+		printInformation(board.getMap().size() + 8);
+
 		const auto c = _getch(); // Wait for user input
 		// Handle user input based on the pressed key
 		switch (c) {
 		case 0: case Keys::SPECIAL_KEY: case ' ':
 			handleSpecialKey(board);
 			break;
+		case 'q': exit_level = handleRegularKey(); return;
+		case Keys::ESCAPE: exit(EXIT_SUCCESS);
 		default:
-			exit = handleRegularKey();
+			//exit = handleRegularKey();
 			break;
 		}
 		// If the mouse moved and the cats don't need to be reset, move the cats
-		if (differentLocation(temp, board.getMouse().getPosition()) && !resetCats)
+		if (differentLocation(temp, board.getMouse().getPosition()) && !m_resetCats)
 			moveCat(board);
 	}
 	// Update the score based on the completed level
-	m_levelScore._score += 25;
-	m_levelScore._score += (5 * int(board.getCat().size()));
+	m_levelScore.m_score += 25;
+	m_levelScore.m_score += (5 * int(board.getCat().size()));
 }
 
 // -----------------------------------------------------------------------------
@@ -139,7 +140,7 @@ void Controller::handleSpecialKey(Board& board) {
 
 // -----------------------------------------------------------------------------
 // check the next step and if it valid go throw and update board
-void Controller::nextStep(Board& board, Location nextLocation) {
+void Controller::nextStep(Board& board,const Location& nextLocation) {
 	if (checkScoreStep(board, nextLocation)) {
 		Screen::setLocation(board.getMouse().getPosition());
 		board.printStep(ROAD, RESET);
@@ -152,12 +153,13 @@ void Controller::nextStep(Board& board, Location nextLocation) {
 	}
 }
 // -----------------------------------------------------------------------------
-bool Controller::handleRegularKey() {
+bool Controller::handleRegularKey() const {
 	return true;
 }
+
 // -----------------------------------------------------------------------------
 // checking if valid step - and count the score if there is.
-bool Controller::checkScoreStep(Board& board, Location& location) {
+bool Controller::checkScoreStep(Board& board, const Location& location) {
 	static size_t counter = 0;
 	if (board.checkBorder(location)) {
 		char c = board.getMap()[location.row].at(location.col);
@@ -180,20 +182,19 @@ bool Controller::checkScoreStep(Board& board, Location& location) {
 		case WALL: return false; // stop
 		}
 		return true;
-
 	}
 	return false;
 }
 // -----------------------------------------------------------------------------
 // did the cat catch you?
 bool Controller::catCatch(Board& board) {
-	if (m_levelScore._lives_remaining > 0) {
-		m_levelScore._lives_remaining--;
+	if (m_levelScore.m_lives_remaining > 0) {
+		m_levelScore.m_lives_remaining--;
 		restPos(board);
 		return false; 
 	}
 	else {
-		//losegame
+		//loseGame
 		system("cls");
 		exit(EXIT_FAILURE); // exit;
 	}
@@ -202,9 +203,9 @@ bool Controller::catCatch(Board& board) {
 // -----------------------------------------------------------------------------
 // if you got the door - check if you have the key
 bool Controller::doorOpen() {
-	if (m_levelScore._counter_key > 0) {
-		m_levelScore._score += 2;
-		m_levelScore._counter_key--;
+	if (m_levelScore.m_counter_key > 0) {
+		m_levelScore.m_score += 2;
+		m_levelScore.m_counter_key--;
 		return true;
 	}
 	return false;
@@ -232,7 +233,7 @@ void Controller::removeCat(Board& board, size_t counter) {
 	Screen::setLocation(location);
 }
 // -----------------------------------------------------------------------------
-// moving the cat bassed algorithm - you can choose which one
+// moving the cat based algorithm - you can choose which one
 // if random or smart algo.
 void Controller::moveCat(Board& board) {
 	for (auto& cat : board.setCat()) {     // Iterate over each cat on the board
@@ -278,8 +279,7 @@ Location Controller::randomMove(Board& board, Cat& cat) {
 }
 // -----------------------------------------------------------------------------
 // Function to calculate the next step for a cat based on Manhattan distance to the mouse
-Location Controller::calculateDistance(Board& board, Cat& cat)
-{
+Location Controller::calculateDistance(Board& board, Cat& cat) {
 	Location mousePos = board.getMouse().getPosition();
 	Location catPos = cat.getPosition();
 	Location nextStep{ 0,0 };
@@ -330,8 +330,7 @@ bool Controller::checkNextCatStep(Board& board, Location& nextPos, Cat& cat)
 
 // -----------------------------------------------------------------------------
 // Function to check if there is a collision between the mouse and any cat on the board
-bool Controller::collision(Board& board)
-{
+bool Controller::collision(Board& board) const {
 	Location temp = board.getMouse().getPosition();
 	for (auto& cat : board.getCat()) {
 		if (!differentLocation(cat.getPosition(), temp))
@@ -342,8 +341,7 @@ bool Controller::collision(Board& board)
 
 // -----------------------------------------------------------------------------
 // check if the same location or different
-bool Controller::differentLocation(const Location& first, const Location& second)
-{
+bool Controller::differentLocation(const Location& first, const Location& second) const {
 	return !(first.col == second.col && first.row == second.row);
 }
 
@@ -382,14 +380,21 @@ void Controller::restPos(Board& board) {
 	}
 
 	// Set the flag indicating that the cats has been reset
-	resetCats = true;
+	m_resetCats = true;
 }
 
-void Controller::printScore(Board board) const
-{
-	size_t size = board.getMap().size() + 1;
+void Controller::printScore(size_t size , const std::string fileName) const {
 	Screen::setLocation({int(size), 0});
-	std::cout << "Score -> " << m_levelScore._score << std::endl;
-	std::cout << "Lives -> " << m_levelScore._lives_remaining << std::endl;
-	std::cout << "Keys -> " << m_levelScore._counter_key << std::endl;
+	std::cout << GREEN <<  "We are in LEVEL " << fileName.substr(5, 3) << std::endl << std::endl;
+	std::cout << "Score -> " << m_levelScore.m_score << std::endl;
+	std::cout << "Lives -> " << m_levelScore.m_lives_remaining << std::endl;
+	std::cout << "Keys  -> " << m_levelScore.m_counter_key << std::endl << RESET;
+}
+
+void Controller::printInformation(size_t size) const {
+	Screen::setLocation({ int(size), 0 });
+	std::cout << "Information section\n";
+	std::cout << "Press \'q' to change level\n";
+	std::cout << "Move the mouse by using the arrow keys.\n";
+	std::cout << "Press ESC to exit the game.\n";
 }
