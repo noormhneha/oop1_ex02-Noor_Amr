@@ -51,25 +51,23 @@ public:
 	Location getMouseLocation() const;
 	std::vector<Location> getCatLocation() const;
 
-	size_t getMapRowSize()const;
+	size_t getMapRowSize() const;
 	void setMapRowSize(const size_t& size);
-	size_t getMapColSize()const;
+	size_t getMapColSize() const;
 	void setMapColSize(const size_t& size);
 
 	int cheeseCounter() const;
 
 	//Functions useful
-	Location SetStartPos();
+	Location SetStartPos() const;
 	void SetCell(Location cell, char c);
 
 	void catsPosition();
-	void printColoredStep(const char c, Board& board);
+	void printColoredStep(const char c, Board& board) const;
 
-	bool checkBorder(const Location& location);
-
-	bool isEaten(int level);
+	bool checkBorder(const Location& location) const;
 	
-	void printStep(const char c, const std::string& color);
+	void printStep(const char c, const std::string& color) const;
 
 private:
 	std::vector<std::string> m_map;

@@ -3,9 +3,7 @@
 #include "Cat.h"
 #include <cmath>
 
-Board::Board(std::ifstream& input)
-	: m_mapColSize(0), m_mapRowSize(0), m_cheese(0), m_mouseLocation{ 1,1 }
-{
+Board::Board(std::ifstream& input) : m_mapColSize(0), m_mapRowSize(0), m_cheese(0), m_mouseLocation{ 1,1 } {
 	Level levelObj(input, *this); Cheese cheese(*this);
 	m_cheese = cheese.getCheeseCounter();
 
@@ -13,10 +11,9 @@ Board::Board(std::ifstream& input)
 	m_mouse.setPosition(m_mouseLocation);
 
 	catsPosition();
-
 }
 
-std::vector<std::string>& Board::getMap()
+std::vector<std::string>& Board::getMap() 
 {
 	return m_map;
 }
@@ -78,7 +75,7 @@ int Board::cheeseCounter() const
 
 //=============================================================================
 
-Location Board::SetStartPos()
+Location Board::SetStartPos() const
 {
 	Location location{ 1,1 };
 	int i = 0;
@@ -101,23 +98,12 @@ void Board::SetCell(Location cell, char c)
 }
 
 
-void Board::printStep(const char c, const std::string& color) {
+void Board::printStep(const char c, const std::string& color) const {
 	std::cout << color << c << RESET;// << std::endl;
 }
 
-bool Board::isEaten(int level)
-{
-	for (int i = 0; i < level; i++)
-	{
-		if (m_mouse.getPosition().row == m_cat[i].getPosition().row &&
-			m_mouse.getPosition().col == m_cat[i].getPosition().col)
-			return true;
-	}
-	return false;
-}
 
-
-void Board::catsPosition()
+void Board::catsPosition() 
 {
 	for (int i = 0; i < m_map.size(); ++i) {
 		for (int j = 0; j < m_map[i].length(); ++j) {
@@ -136,7 +122,7 @@ void Board::catsPosition()
 }
 
 
-void Board::printColoredStep(const char c, Board& board) {
+void Board::printColoredStep(const char c, Board& board) const {
 	switch (c) {
 	case MOUSE:
 		board.printStep(c, MOUSECOLOR);
@@ -164,6 +150,6 @@ void Board::printColoredStep(const char c, Board& board) {
 
 
 // --------------------------------------------------------------
-bool Board::checkBorder(const Location& location) {
+bool Board::checkBorder(const Location& location) const {
 	return (location.col < m_mapColSize && location.row < m_mapRowSize);
 }
