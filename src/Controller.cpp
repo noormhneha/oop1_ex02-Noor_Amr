@@ -161,27 +161,29 @@ bool Controller::handleRegularKey() const {
 // checking if valid step - and count the score if there is.
 bool Controller::checkScoreStep(Board& board, const Location& location) {
 	static size_t counter = 0;
-	char c = board.getMap()[location.row].at(location.col);
-	switch (c)
-	{
-	case CAT:  return (catCatch(board)); // lose 
-	case DOOR: return (doorOpen()); // check key 
-	case KEY: // get
-		m_levelScore.m_counter_key++;
-		break;
-	case CHEESE: // eat
-		m_levelScore.m_cheese_counter--;
-		m_levelScore.m_score += 10;
-		break;
-	case GIFT: // delete cat
-		removeCat(board, counter);
-		counter++;
-		m_levelScore.m_score += 5;
-		break;
-	case WALL: return false; // stop
+	if (board.checkBorder(location)) {
+		char c = board.getMap()[location.row].at(location.col);
+		switch (c)
+		{
+		case CAT:  return (catCatch(board)); // lose 
+		case DOOR: return (doorOpen()); // check key 
+		case KEY: // get
+			m_levelScore._counter_key++;
+			break;
+		case CHEESE: // eat
+			m_levelScore._cheese_counter--;
+			m_levelScore._score += 10;
+			break;
+		case GIFT: // delete cat
+			removeCat(board, counter);
+			counter++;
+			m_levelScore._score += 5;
+			break;
+		case WALL: return false; // stop
+		}
+		return true;
 	}
-
-	return true;
+	return false;
 }
 // -----------------------------------------------------------------------------
 // did the cat catch you?
@@ -311,16 +313,19 @@ Location Controller::calculateDistance(Board& board, Cat& cat) {
 // Function to check if the next step for a cat is valid on the game board
 bool Controller::checkNextCatStep(Board& board, Location& nextPos, Cat& cat)
 {
-	char c = board.getMap()[nextPos.row].at(nextPos.col);
-	switch (c)
-	{
-	case CAT: case DOOR: case WALL: return false;
+	if (board.checkBorder(nextPos)) {
+		char c = board.getMap()[nextPos.row].at(nextPos.col);
+		switch (c)
+		{
+		case CAT: case DOOR: case WALL: return false;
 
-	case KEY: case CHEESE: case GIFT: case ROAD:
-		cat.setNextChar(c);
+		case KEY: case CHEESE: case GIFT: case ROAD:
+			cat.setNextChar(c);
+			return true;
+		}
 		return true;
 	}
-	return true;
+	return false;
 }
 
 // -----------------------------------------------------------------------------
