@@ -168,16 +168,16 @@ bool Controller::checkScoreStep(Board& board, const Location& location) {
 		case CAT:  return (catCatch(board)); // lose 
 		case DOOR: return (doorOpen()); // check key 
 		case KEY: // get
-			m_levelScore._counter_key++;
+			m_levelScore.m_counter_key++;
 			break;
 		case CHEESE: // eat
-			m_levelScore._cheese_counter--;
-			m_levelScore._score += 10;
+			m_levelScore.m_cheese_counter--;
+			m_levelScore.m_score += 10;
 			break;
 		case GIFT: // delete cat
 			removeCat(board, counter);
 			counter++;
-			m_levelScore._score += 5;
+			m_levelScore.m_score += 5;
 			break;
 		case WALL: return false; // stop
 		}
