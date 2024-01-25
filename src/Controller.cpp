@@ -21,6 +21,7 @@ Controller::Controller() : m_playList("Levels.txt"), m_levels{ "Level001.txt" }
 
 		// Clear the console screen 
 		system("cls");
+		level.close();
 	}
 }
 

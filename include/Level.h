@@ -10,7 +10,6 @@ class Board;
 class Level {
 public:
 	Level(std::ifstream& , Board&);
-
 private:
 	std::ifstream& m_level;
 	Board& m_board;
