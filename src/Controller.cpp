@@ -18,6 +18,7 @@ Controller::Controller() : m_playList("Levels.txt"), m_levels{ "Level001.txt" }
 
 		// Call the gameLevel function to process the level
 		gameLevel(level, *i);
+		m_levelScore.m_counter_key = 0;
 
 		// Clear the console screen 
 		system("cls");
@@ -105,8 +106,10 @@ void Controller::gameLevel(std::ifstream& level,const std::string fileName) {
 			moveCat(board);
 	}
 	// Update the score based on the completed level
-	m_levelScore.m_score += 25;
-	m_levelScore.m_score += (5 * int(board.getCat().size()));
+	if (m_levelScore.m_cheese_counter == 0) {
+		m_levelScore.m_score += 25;
+		m_levelScore.m_score += (5 * int(board.getCat().size()));
+	}
 }
 
 // -----------------------------------------------------------------------------

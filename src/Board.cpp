@@ -151,5 +151,6 @@ void Board::printColoredStep(const char c, Board& board) const {
 
 // --------------------------------------------------------------
 bool Board::checkBorder(const Location& location) const {
-	return (location.col < m_mapColSize && location.row < m_mapRowSize);
+	return (0 < location.col && location.col < m_mapColSize &&
+		    0 < location.row && location.row < m_mapRowSize);
 }

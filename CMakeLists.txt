@@ -1,7 +1,7 @@
 ﻿cmake_minimum_required (VERSION 3.26)
 
 project(oop1_ex02)
-set (MY_AUTHORS "")
+set (MY_AUTHORS "Amr Shwieky, Noor mhneha")
 
 include (cmake/CompilerSettings.cmake)
 
